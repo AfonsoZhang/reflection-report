@@ -4,8 +4,7 @@
 
 **Student Name:** ZHANG Shuyang  
 **Student ID:** 25049993G  
-**Group Number:** [Your Group Number]  
-**Date:** [Submission Date]
+**Date:** [2026/4/24]
 
 ---
 
