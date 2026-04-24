@@ -22,11 +22,15 @@ In the **final project** (AMtown02), I relied on Cursor's Agent mode almost dail
 
 ## Section 2: Understanding AI Limitations
 
-The most significant AI failure occurred during my calibration analysis in the final project. When I was documenting why using HKisland's configuration on AMtown02 data produced an ATE of 215 meters, the AI fabricated a distortion coefficient value of `k1 = -0.189` and attributed the high ATE primarily to this k1 difference. This value **does not exist** in any calibration file in the repository.
+The most significant AI failure occurred when Cursor was generating the `README.md` for my final project. In a table summarizing calibration experiments, the AI wrote that the first test used `k1 = -0.189` and attributed the high ATE of 215 meters primarily to this k1 difference. This value **does not exist** in any calibration file in the repository — the AI fabricated it while writing the documentation.
 
-The actual root cause was fundamentally different: the 215m ATE was caused by using mismatched **intrinsic parameters** (fx, fy, cx, cy) from a different dataset's camera. Using the wrong projection model is a catastrophic error regardless of distortion.
+The actual root cause was fundamentally different: the 215m ATE was caused by using mismatched **intrinsic parameters** (fx, fy, cx, cy) from the HKisland dataset's camera applied to AMtown data. Using the wrong projection model is a catastrophic error regardless of distortion.
 
-I detected this hallucination by manually cross-referencing the calibration files (`calib_yaml/HK_GNSS(airport & island).yaml` and `calib_yaml/HKisland.yaml`). The value `k1 = -0.189` appeared in neither file. I corrected the AI explicitly, and it revised the entire `CALIBRATION_ANALYSIS.md`. This taught me that AI can construct convincing but fabricated causal narratives around numerical data — a particularly dangerous failure mode in engineering.
+I detected this hallucination when I reviewed the README and questioned: "Where did k1=-0.189 come from? Which yaml?" (see screenshot below). After searching the codebase, the AI admitted it was a mistake — the actual HKisland k1 is -0.053, and the value -0.189 was entirely fabricated. I then had the AI revise the README with the corrected narrative.
+
+![Screenshot: questioning the AI about the fabricated k1 value](ai_hallucination_screenshot.png)
+
+This incident taught me that AI can fabricate plausible numerical values when generating documentation, especially when constructing causal narratives around experimental data.
 
 ---
 
@@ -82,20 +86,23 @@ My key takeaway: **AI excels at "how" but struggles with "why."** It efficiently
 
 ## Section 7: Evidence
 
-### 7.1 Code Snippet: AI Hallucination Correction
+### 7.1 AI Hallucination: Fabricated k1 Value in README
+
+The AI wrote `k1 = -0.189` in the README calibration table. No such value exists:
 
 ```yaml
-# AI's fabricated claim (WRONG — this value does not exist in any file):
-# "The HKisland config uses k1 = -0.189, causing ATE = 215m"
+# AI wrote in README (WRONG — fabricated value):
+#   "HKisland config: k1 = -0.189, ATE = 215m"
 
 # Actual values from calibration files:
 # calib_yaml/HK_GNSS(airport & island).yaml → k1 = -0.0560
 # calib_yaml/HKisland.yaml                  → k1 = -0.0530
 # calib_yaml/AMtown.yaml                    → k1 = -0.1210
 
-# Root cause of 215m ATE: wrong fx/fy/cx/cy (HKisland intrinsics on AMtown data),
-# NOT k1 difference.
+# Root cause of 215m ATE: wrong fx/fy/cx/cy (HKisland intrinsics on AMtown data)
 ```
+
+![Screenshot of questioning the AI](ai_hallucination_screenshot.png)
 
 ### 7.2 k1 Ablation Results (Terminal Output)
 
